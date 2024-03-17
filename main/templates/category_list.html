@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <ul class="mx-auto" style="width: 32rem;">
+         <ul class="list-group-flush bg-transparent">
+            {% if user.role.role != "admin" %}
+                <p>You do not have permission to view this page.</p>
+            {% else %}
+             <form class="d-flex" method="POST">
+                {% csrf_token %}
+                <input class="form-control me-2" type="search" placeholder="Enter category name" aria-label="Search" name="Filter">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </form>
+                {% for category in page %}
+                <li class="list-group-item bg-transparent">{{ category.illness_category }}
+                    <form method="POST" class="form-group">
+                    {% csrf_token %}
+                    {{form|crispy}}
+                    <button type="submit" value="{{category.id}}" name="Edit" >Edit</button>
+                    <button type="submit" value="{{category.id}}" name="Delete" >Delete</button>
+                    </form>
+                </li>
+                {% endfor %}
+             </ul>
+            {% endif %}
+            <div class="page-links">
+                {% if page.has_previous %}
+                    {%if filter%}
+                    <a href="{% url 'category-list' %}?page={{page.previous_page_number}}&category={{filter}}">Previous Page</a>
+                    {%else%}
+                    <a href="{% url 'category-list' %}?page={{page.previous_page_number}}">Previous Page</a>
+                    {%endif%}
+                {% endif %}
+                {% if page.has_next %}
+                    {%if filter%}
+                    <a href="{% url 'category-list' %}?page={{page.next_page_number}}&category={{filter}}">Next Page</a>
+                    {%else%}
+                    <a href="{% url 'category-list' %}?page={{page.next_page_number}}">Next Page</a>
+                    {%endif%}
+                {% endif %}
+            </div>
+    </div>
+{% endblock %}

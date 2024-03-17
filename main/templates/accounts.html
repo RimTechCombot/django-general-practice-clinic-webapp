@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="mx-auto" style="width: 25rem;">
+        {% if user.role.role == "patient" %}
+            <p>You do not have permission to view this page.</p>
+        {% else %}
+            <form class="d-flex" method="POST">
+                {% csrf_token %}
+                {% if user.role.role == "doctor" %}
+                    <input class="form-control me-2" type="search" placeholder="Enter patient surname" aria-label="Search" name="Filter">
+                {% elif user.role.role == "admin" %}
+                    <input class="form-control me-2" type="search" placeholder="Enter user surname" aria-label="Search" name="Filter">
+                {%endif%}
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </form>
+            {% for patient in page %}
+                <ul class="list-group-flush bg-transparent">
+                    <form method="POST" class="form-group">
+                        {% csrf_token %}
+                        {{form|crispy}}
+                        <li><a href="{%url 'account' patient.id %}">{{ patient.email }} {{patient.first_name}} {{patient.last_name}}</a>
+                        {% if user.role.role == "admin" %}
+                            <br>
+                            <button type="submit" value="{{patient.id}}" name="Edit user" >Edit</button>
+                            {%if patient.role.role != "admin" and patient.is_active %}
+                                <button type="submit" value="{{patient.id}}" name="Deactivate user">Deactivate</button>
+                            {%elif patient.role.role != "admin" and patient.is_active == 0 %}
+                                <button type="submit" value="{{patient.id}}" name="Activate user">Activate</button>
+                            {% endif %}
+                        {% endif %}
+                        </li>
+                    </form>
+                  </ul>
+            {% endfor %}
+        {% endif %}
+        <div class="page-links">
+            {% if page.has_previous %}
+                {%if account%}
+                    <a href="{% url 'accounts' %}?page={{page.previous_page_number}}&account={{account}}">Previous Page</a>
+                {%else%}
+                    <a href="{% url 'accounts' %}?page={{page.previous_page_number}}">Previous Page</a>
+                {%endif%}
+            {% endif %}
+            {% if page.has_next %}
+                {%if account%}
+                    <a href="{% url 'accounts' %}?page={{page.next_page_number}}&account={{account}}">Next Page</a>
+                {%else%}
+                    <a href="{% url 'accounts' %}?page={{page.next_page_number}}">Next Page</a>
+                {%endif%}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

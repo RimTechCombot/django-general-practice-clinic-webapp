@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="mx-auto" style="width: 20rem;">
+        {% if account %}
+            <div class="card bg-transparent" style="width: 18rem;">
+                <div class="card-body">
+                {% if user.role.role == "admin" or account.doctor_id == user.id or account.id == user.id%}
+                    <p class="card-text">Name: {{account.first_name}}
+                    <br>Last name: {{account.last_name}}
+                    <br>Sex: {{account.sex}}
+                    <br>Email: {{ account.email }}
+                    <br>Date of birth: {{account.date_of_birth}}
+                    <br>Role: {{account.role.role}}
+                    {%if account.doctor %}
+                    <br> Doctor: {{account.doctor}}
+                    {%endif%}
+                    {%if data%}
+                    {%for year in data%}
+                        <li><a href="{% url 'doctor-data' account.id year %}">Graph for {{year}}</li>
+                    {%endfor%}
+                    {%endif%}
+                    {%if page%}
+                    <br><br>Archived appointments:
+
+                    <ul class="list-group-flush bg-transparent">
+
+                    {% for archive in page %}
+                        <li class="list-group-flush bg-transparent"><a href="{%url 'archive-pdf' archive.id%}">{{archive.date}}  </a></li>
+                    {% endfor %}
+
+                    </ul>
+                    <div class="page-links">
+                        {% if page.has_previous %}
+                            <a href="{% url 'account' account.id %}?page={{page.previous_page_number}}">Previous Page</a>
+                        {% endif %}
+                        {% if page.has_next %}
+                            <a href="{% url 'account' account.id %}?page={{page.next_page_number}}">Next Page</a>
+                        {% endif %}
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+            {% else %}
+                <p>Permission denied.</p>
+            {% endif %}
+        {% else %}
+            <p>Account doesn't exist.</p>
+        {% endif %}
+    </div>
+{% endblock %}

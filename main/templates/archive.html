@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if user.role.role == "patient" %}
+        <p>You do not have permission to view this page.</p>
+    {% else %}
+        <div class="mx-auto" style="width: 25rem;">
+            <form method="POST" class="form-group">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-success">Archive</button>
+            </form>
+        </div>
+    {%endif%}
+{% endblock %}

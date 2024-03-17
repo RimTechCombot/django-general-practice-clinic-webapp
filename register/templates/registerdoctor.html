@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if user.role.role == "admin" %}
+        <div class="mx-auto" style="width: 25rem;">
+            {% block title %}Add a doctor to the system{% endblock %}
+            <form method="POST" class="form-group">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-success">Add</button>
+            </form>
+        </div>
+    {% else %}
+        <p>You do not have permission to view this page.</p>
+    {% endif %}
+{% endblock %}

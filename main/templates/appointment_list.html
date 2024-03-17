@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load templatetags %}
+{% block content %}
+<div class="h-100 d-flex align-items-center justify-content-center">
+    <div class="mx-auto" style="width: 25rem;">
+    {%if user.role.role == "admin"%}
+
+        <form class="d-flex" method="POST">
+            {% csrf_token %}
+            <input class="form-control me-2" type="search" placeholder="Enter doctor surname" aria-label="Search" name="Filter">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </form>
+
+    {%endif%}
+        {% if filter %}
+        <p> Showing appointments for doctor {{filter}} </p>
+        {% endif %}
+        <ul class="list-group-flush bg-transparent">
+        {% for appointment in page.object_list %}
+            <li class="list-group-item bg-transparent">
+            <form id={{appointment.id}} method="POST" action="/main/appointment-list">
+            {% if user.role.role != "patient" %}
+                <b>{{appointment.patient.first_name}} {{appointment.patient.last_name}}</b>
+                </br>
+            {%endif%}
+            {{ appointment.date }} {{time_dict|get_item:appointment.timeslot}}
+            </br>
+            Description: {{appointment.description}}
+            </br>
+                <a href="{%url 'appointment-pdf' appointment.id%}"> Download PDF  </a>
+            </br>
+            {% csrf_token %}
+            {%if user.role.role == "doctor" or user.role.role == "admin"%}
+                <button type="submit" value="{{appointment.id}}" name="Archive">Archive</button>
+                <button type="submit" value="{{appointment.id}}" name="No show">No show</button>
+            {% endif %}
+            <button type="submit" value="{{appointment.id}}" name="Cancel appointment">Cancel</button>
+            </form>
+            </li>
+        {% endfor %}
+        </ul>
+        {%if user.role.role == "doctor"%}
+        <a href="{% url 'appointment-list' %}?page=1&date=past">Past appointments</a>
+        <a href="{% url 'appointment-list' %}?page=1&date=all">All appointments</a>
+        <br>
+        <a href="{% url 'appointment-list' %}?page=1&date=today">Today's appointments</a>
+        <a href="{% url 'appointment-list' %}?page=1&date=tomorrow">Tomorrow's appointments</a>
+        {%endif%}
+        <div class="page-links">
+            {% if page.has_previous %}
+                {%if filter%}
+                <a href="{% url 'appointment-list' %}?page={{page.previous_page_number}}&doctor={{filter}}">Previous Page</a>
+                {%elif date%}
+                <a href="{% url 'appointment-list' %}?page={{page.previous_page_number}}&date={{date}}">Previous Page</a>
+                {%else%}
+                <a href="{% url 'appointment-list' %}?page={{page.previous_page_number}}">Previous Page</a>
+                {%endif%}
+            {% endif %}
+            {% if page.has_next %}
+                {%if filter%}
+                <a href="{% url 'appointment-list' %}?page={{page.next_page_number}}&doctor={{filter}}">Next Page</a>
+                {%elif date%}
+                <a href="{% url 'appointment-list' %}?page={{page.next_page_number}}&date={{date}}">Next Page</a>
+                {%else%}
+                <a href="{% url 'appointment-list' %}?page={{page.next_page_number}}">Next Page</a>
+                {%endif%}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{%comment%}
+<style>
+html,
+body {
+  height: 55%
+}
+</style>
+{%endcomment%}
+{% endblock %}
